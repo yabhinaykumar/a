@@ -1,0 +1,36 @@
+pipeline {
+environment {
+registry = "YourDockerhubAccount/YourRepository"
+registryCredential = 'dockerhub_id'
+dockerImage = ''
+}
+agent any
+stages {
+stage('Cloning our Git') {
+steps {
+git 'https://github.com/yabhinaykumar/a.git'
+}
+}
+stage('Building our image') {
+steps{
+script {
+dockerImage = docker.build registry + ":8af10725ea47904311d4f5cb15de9103f2c0bf3eea169a9a24ee5128186b9bf9"
+}
+}
+}
+stage('Deploy our image') {
+steps{
+script {
+docker.withRegistry( 'DockerHub', registryCredential ) {
+dockerImage.push()
+}
+}
+}
+}
+stage('Cleaning up') {
+steps{
+sh "docker rmi $registry:8af10725ea47904311d4f5cb15de9103f2c0bf3eea169a9a24ee5128186b9bf9"
+}
+}
+}
+}
